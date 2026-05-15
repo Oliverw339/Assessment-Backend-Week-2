@@ -1,0 +1,2 @@
+INSERT INTO experiment 
+VALUES (DEFAULT,1,1,DEFAULT,1); 

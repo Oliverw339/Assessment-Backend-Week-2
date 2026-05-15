@@ -31,6 +31,51 @@ def home():
     })
 
 
+def get_exp_by_type(exp_type):
+    cursor = conn.cursor()
+    query = """ SELECT * 
+    FROM experiment 
+    JOIN experiment_type USING(experiment_type_id) 
+    WHERE experiment.type_name = %(exp_type)s;
+    """
+    cursor.execute(query, {'experiment_type': exp_type})
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
+
+
+def get_above_score(score):
+    cursor = conn.cursor()
+    query = """ SELECT * 
+    FROM experiment  
+    WHERE experiment.score > %(score)s;
+    """
+    cursor.execute(query, {'score': score})
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
+
+
+@app.route("/experiment", methods=['GET'])
+def experiments_search():
+    exp_type = request.args.get('type')
+    exp_score_over = request.args.get('score_over')
+
+    exp_types = ["intelligence", "obedience", "aggression"]
+    scores = [i for i in range(0, 101)]
+
+    if exp_type not in exp_types:
+        return {"error": "Invalid value for type parameter"}, 400
+
+    if exp_score_over not in scores:
+        return {"error": "Invalid value for score parameter"}, 400
+
+    if exp_types != None:
+        return list(get_exp_by_type(exp_type)), 200
+
+    if exp_score_over != None:
+        return list(get_above_score(exp_score_over)), 200
+
 
 if __name__ == "__main__":
     app.config["DEBUG"] = True
